@@ -5,6 +5,9 @@
 #include <GFL-ServerHop>
 #include <multicolors>
 
+// For the direct server connect feature in the hop menu.
+#include <server_redirect>
+
 #undef REQUIRE_PLUGIN
 #include <updater>
 #undef REQUIRE_EXTENSIONS
@@ -1277,11 +1280,8 @@ stock void DisplayServerInfo(int iClient, int i)
 	Handle hMenu = CreateMenu(ServerInfoMenuCallback);
 	SetMenuTitle(hMenu, sFullMenu);
 	
-	if (GetEngineVersion() != Engine_CSGO)
-	{
-		Format(sFullIP, sizeof(sFullIP), "%s:%d", g_arrServers[i].sIP, g_arrServers[i].iPort);
-		AddMenuItem(hMenu, sFullIP, "Connect");
-	}
+	Format(sFullIP, sizeof(sFullIP), "%s:%d", g_arrServers[i].sIP, g_arrServers[i].iPort);
+	AddMenuItem(hMenu, sFullIP, "Connect");
 	
 	AddMenuItem(hMenu, "back", "Back");
 	
@@ -1302,22 +1302,13 @@ public int ServerInfoMenuCallback(Menu mMenu, MenuAction maAction, int iClient, 
 		}
 		else
 		{
-			ConnectToServer(iClient, sInfo);
+			RedirectClient(iClient, sInfo);
 		}
 	}
 	else if (maAction == MenuAction_End)
 	{
 		delete(mMenu);
 	}
-}
-
-stock void ConnectToServer(int iClient, const char[] sRealIP)
-{
-	Handle hKV = CreateKeyValues("menu");
-	KvSetString(hKV, "time", "20");
-	KvSetString(hKV, "title", sRealIP);
-	CreateDialog(iClient, hKV, DialogType_AskConnect);
-	delete(hKV);
 }
 
 stock void CreateSQLTables()
